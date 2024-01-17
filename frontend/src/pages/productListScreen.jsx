@@ -3,72 +3,84 @@ import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Loader from "../components/Loader";
 import Message from "../components/Message";
-import {  deleteUser } from "../actions/userActions";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { listProducts,deleteProduct } from "../actions/ProductActions";
-
+import {
+  listProducts,
+  deleteProduct,
+  createProduct,
+} from "../actions/ProductActions";
+import { PRODUCT_CREATE_RESET } from "../constants/ProductConstants";
 
 function productListScreen() {
   const dispatch = useDispatch();
   const productList = useSelector((state) => state.productList);
   const { Loading, error, products } = productList;
   const productDelete = useSelector((state) => state.productDelete);
-  const { Loading:loadingDelete, error:errorDelete, success:successDelete } = productDelete;
+  const {
+    Loading: loadingDelete,
+    error: errorDelete,
+    success: successDelete,
+  } = productDelete;
+  const productCreate = useSelector((state) => state.productCreate);
+  const {
+    Loading: loadingCreate,
+    error: errorCreate,
+    success: successCreate,
+    product: createdProduct,
+  } = productCreate;
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
-  const userDelete = useSelector((state) => state.userDelete);
 
   const navigateto = useNavigate();
 
-  
-
   useEffect(() => {
-    if (userInfo && userInfo.isAdmin) {
-      dispatch(listProducts());
-    } else {
+    dispatch({ type: PRODUCT_CREATE_RESET });
+    if (!userInfo.isAdmin) {
       navigateto("/login");
+    } else {
+      if (successCreate) {
+        navigateto(`/admin/product/${createdProduct._id}/edit`);
+      } else {
+        dispatch(listProducts());
+      }
     }
-  
-  
-   
-    
-  }, [dispatch, navigateto, userInfo, successDelete,successDelete]);
+  }, [
+    dispatch,
+    navigateto,
+    userInfo,
+    successDelete,
+    successDelete,
+    successCreate,
+    createdProduct,
+  ]);
 
   const deleteHandler = (id) => {
-    if (window.confirm('Are you sure you want to delete this user?')){
-
-      dispatch(deleteProduct(id))
+    if (window.confirm("Are you sure you want to delete this user?")) {
+      dispatch(deleteProduct(id));
     }
-
-
-
-  
   };
   const createProductHandler = () => {
-    // if (window.confirm('Are you sure you want to delete this user?'))
-
-
-
-  
+    dispatch(createProduct());
   };
   return (
     <>
       <div className="container">
         <div className=" my-4 justify-content-between d-flex">
           <div className=" ">
-              <h1>Products</h1>
+            <h1>Products</h1>
           </div>
           <div className="">
-            <div onClick={createProductHandler()} className="btn btn-primary">
+            <div onClick={createProductHandler} className="btn btn-primary">
               Create Product
             </div>
-            
-            </div>
+          </div>
         </div>
-        {loadingDelete && <Loader/>}
+        {/* {loadingDelete && <Loader/>}
         {errorDelete && <Message variant='danger'>{errorDelete}</Message>}
-    
+        {loadingCreate && <Loader/>}
+        {errorCreate && <Message variant='danger'>{errorCreate}</Message>} */}
+
         {Loading ? (
           <Loader />
         ) : error ? (
@@ -95,7 +107,7 @@ function productListScreen() {
                     <td>{product.price}</td>
                     <td>{product.category}</td>
                     <td>{product.brand}</td>
-                  
+
                     <td>
                       <Link to={`/admin/product/${product._id}/edit`}>
                         <div className="btn btn-primary">Edit</div>
