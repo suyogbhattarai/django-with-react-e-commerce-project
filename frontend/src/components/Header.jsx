@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useSelector,useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom'
-import {logout} from '../actions/userActions'
+import {logout,login} from '../actions/userActions'
+
 
 
 
@@ -12,6 +13,9 @@ function Header() {
   const logoutHandler  = ()=>{
     dispatch(logout())
   }
+
+
+  
   return (
     <>
     <header className='bg-dark ' >
@@ -40,8 +44,24 @@ function Header() {
       ):
       <li className="nav-item">
       <Link class="nav-link text-light d-flex align-items-center  gap-2 " to={`/login`}> <i class="fa fa-sign-in" aria-hidden="true"></i>Login</Link>
-    </li>
-      }
+    </li>}
+      
+      {userInfo  && userInfo.isAdmin &&(
+        <>
+        <div class="dropdown ms-3">
+        <button id='username' class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          Admin 
+        </button>
+        <ul class="dropdown-menu">
+          <li><Link class="dropdown-item" to="/admin/userlist">users</Link></li>
+          <li><Link class="dropdown-item" to="/admin/productlist">Products</Link></li>
+          <li><Link class="dropdown-item" to="/admin/productlist">Customer Orders</Link></li>
+        
+         
+        </ul>
+      </div>
+      </>
+      )}
     
    
      
@@ -51,6 +71,7 @@ function Header() {
       <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
     </form> */}
   </div>
+  
 </nav>
         
     </header>

@@ -12,6 +12,8 @@ import {
   USER_DETAILS_SUCCESS,
 } from "../constants/userConstants";
 
+import { listMyOrders } from "../actions/OrderActions";
+
 function ProfileScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,16 +30,21 @@ function ProfileScreen() {
   const { userInfo } = userLogin;
 
   const userUpdateProfile = useSelector((state) => state.userUpdateProfile);
+  const { success } = userUpdateProfile; 
 
-  const { success } = userUpdateProfile;
+  const orderListMy = useSelector((state) => state.orderListMy);
+
+  const { loading:loadingOrders,error:errorOrders,orders } = orderListMy; 
 
   useEffect(() => {
+  
     if (!userInfo) {
       navigateTo("/login ");
     } else {
-      if (!user || !user.name || success) {
+      if (!user || !user.name || success || userInfo._id !== user._id) {
         dispatch({ type: USER_UPDATE_PROFILE_RESET });
         dispatch(getUserdetails("profile"));
+        dispatch(listMyOrders());
       } else {
         {
           setName(user.name);
@@ -151,6 +158,50 @@ function ProfileScreen() {
         </div>
         <div className="col-lg-9">
           <h2>My Orders</h2>
+          {loadingOrders ? (<Loader/>):
+          errorOrders ? (<Message variant='danger'>{errorOrders}</Message>):(
+            <table width={`100%`} border={`1px` }>
+              <thead>
+              <tr>
+              <th>ID</th>
+              <th>Date</th>
+              <th>Total</th>
+              <th>Paid</th>
+              <th>Delivered</th>
+              
+            </tr>
+              </thead>
+              <tbody>
+                {orders.length == 0 ? 
+                (<><td colSpan={5} style={{textAlign:"center"}}>
+                  <h1>You have no orders placed</h1>
+                  <br />
+                  <div className="btn btn-primary"><Link style={{color:"white"}} to={`/`}>Shop Now</Link></div>
+                   </td></>)
+                :
+                orders.map(order=> (
+                  <>
+                  <tr>
+                    <td>{order._id}</td>
+                    <td>{order.createdAt.substring(0,10)}</td>
+                    <td>{order.totalPrice}</td>
+                    <td>{order.isPaid ? (<><b>{order.paidAt.substring(0,10)}</b></>):(<>
+                    <b>Not Paid</b>
+                    </>)}</td>
+                    <td>
+                      <span  className="btn btn-primary"><Link style={{color:"white"}} to={`/order/${order._id}`}>Details </Link></span>
+                      
+                    </td>
+                  </tr>
+                  </>
+                ))
+                }
+              </tbody>
+           
+          </table>
+          )
+          }
+          
         </div>
       </div>
     </div>

@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from base.models import Product,Order,OrderItem,ShippingAddress
 from base.serializers import *
 from rest_framework import status  
+from datetime import datetime
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -45,7 +46,7 @@ def addOrderItems(request):
                 name=product.name,
                 qty=i['qty'],
                 price=i['price'],
-                image=product.image.url,
+                image=product.image,
             )
             # 4. Update stock
             product.countInStock -= item.qty
@@ -56,7 +57,17 @@ def addOrderItems(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
+def getMyOrders(request):
+    user=request.user
+    orders=user.order_set.all()
+    serializer=OrderSerializer(orders,many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def getOrderById(request,pk):
+    
     user=request.user
     
     try:
@@ -66,7 +77,17 @@ def getOrderById(request,pk):
             return Response (serializer.data)
         
         else:
-            Response ({'detail':'Not Authorized to view this order.'},status=HTTP_400_BAD_REQUEST)
+            Response ({'detail':'Not Authorized to view this order.'},status=status.HTTP_400_BAD_REQUEST)
 
     except:
         return Response({'detail':'Order does not exists'},status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])  
+@permission_classes([IsAuthenticated])  
+def updateOrderToPaid(request,pk):
+    order=Order.objects.get(_id=pk)
+    order.isPaid=True
+    order.paidAt=datetime.now()
+    order.save()
+
+    return Response('Order was paid ')
