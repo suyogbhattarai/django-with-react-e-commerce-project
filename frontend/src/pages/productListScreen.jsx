@@ -15,16 +15,16 @@ import { PRODUCT_CREATE_RESET } from "../constants/ProductConstants";
 function productListScreen() {
   const dispatch = useDispatch();
   const productList = useSelector((state) => state.productList);
-  const { Loading, error, products } = productList;
+  const { loading, error, products } = productList;
   const productDelete = useSelector((state) => state.productDelete);
   const {
-    Loading: loadingDelete,
+    loading: loadingDelete,
     error: errorDelete,
     success: successDelete,
   } = productDelete;
   const productCreate = useSelector((state) => state.productCreate);
   const {
-    Loading: loadingCreate,
+    loading: loadingCreate,
     error: errorCreate,
     success: successCreate,
     product: createdProduct,
@@ -56,7 +56,7 @@ function productListScreen() {
   ]);
 
   const deleteHandler = (id) => {
-    if (window.confirm("Are you sure you want to delete this user?")) {
+    if (window.confirm("Are you sure you want to delete this product?")) {
       dispatch(deleteProduct(id));
     }
   };
@@ -76,12 +76,12 @@ function productListScreen() {
             </div>
           </div>
         </div>
-        {/* {loadingDelete && <Loader/>}
-        {errorDelete && <Message variant='danger'>{errorDelete}</Message>}
-        {loadingCreate && <Loader/>}
-        {errorCreate && <Message variant='danger'>{errorCreate}</Message>} */}
+        {loadingCreate && <Loader />}
+        {loadingDelete && <Loader />}
+        {errorCreate && <Message variant="danger">{errorCreate}</Message>}
+        {errorDelete && <Message variant="danger">{errorDelete}</Message>}
 
-        {Loading ? (
+        {loading ? (
           <Loader />
         ) : error ? (
           <Message variant="danger">{error}</Message>

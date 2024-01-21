@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 function UserListScreen() {
   const dispatch = useDispatch();
   const usersList = useSelector((state) => state.usersList);
-  const { Loading, error, users } = usersList;
+  const { loading, error, users } = usersList;
   const userLogin = useSelector((state) => state.userLogin);
   const { userInfo } = userLogin;
   const userDelete = useSelector((state) => state.userDelete);
@@ -42,8 +42,8 @@ function UserListScreen() {
   return (
     <>
       <div className="container">
-        <h1>Users</h1>
-        {Loading ? (
+        <h1 className="my-4">Users</h1>
+        {loading ? (
           <Loader />
         ) : error ? (
           <Message variant="danger">{error}</Message>

@@ -6,11 +6,12 @@ import Message from '../components/Message'
 import CheckoutSteps from '../components/CheckoutSteps'
 import { createOrder} from '../actions/OrderActions'
 import { ORDER_CREATE_RESET } from '../constants/OrderConstants'
+import Loader from '../components/Loader'
 
 
 function PlaceOrderScreen() {
     const orderCreate=useSelector(state=> state.orderCreate)
-    const {order,error,success}=orderCreate
+    const {order,error,success,loading}=orderCreate
     const cart = useSelector(state => state.cart)
     const navigateTo=useNavigate()
     const backendBaseUrl = 'http://localhost:8000';
@@ -138,6 +139,7 @@ function PlaceOrderScreen() {
                         </div>
                     </div>
                     <div className="list-group-item">
+                        {loading && <Loader/>}
                         {error && <Message  variant='danger'>{error}</Message>}
                     </div>
                     <div className="list-group-item">
