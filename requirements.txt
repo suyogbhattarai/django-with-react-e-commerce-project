@@ -20,23 +20,23 @@ tzdata==2023.3
 whitenoise==6.6.0
 
 
-boto3==1.24.69
-botocore==1.27.69
-certifi==2022.6.15
-charset-normalizer==2.1.0
-cloudinary==1.29.0
-dj3-cloudinary-storage==0.0.6
+boto3
+botocore
+certifi
+charset-normalizer
+cloudinary
+dj3-cloudinary-storage
 
-django-storages==1.12.3
-gunicorn==20.1.0
-idna==3.3
-jmespath==1.0.1
+django-storages
+gunicorn
+idna
+jmespath
 
-psycopg2-binary==2.9.6
-python-dateutil==2.8.2
-requests==2.28.1
-s3transfer==0.6.0
-six==1.16.0
+psycopg2-binary
+python-dateutil
+requests
+s3transfer
+six
 
-tzdata==2021.5
-urllib3==1.26.10
+tzdata
+urllib3
