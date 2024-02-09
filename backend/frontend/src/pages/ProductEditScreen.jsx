@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import FormContainer from "../components/FormContainer";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { register } from "../actions/userActions";
 import Message from "../components/Message";
 import Loader from "../components/Loader";
-import { listProductDetails,updateProduct } from "../actions/ProductActions";
+import { listProductDetails, updateProduct } from "../actions/ProductActions";
 import { useParams } from "react-router-dom";
 import { PRODUCT_UPDATE_RESET } from "../constants/ProductConstants";
 function ProductEditScreen() {
@@ -18,49 +19,79 @@ function ProductEditScreen() {
   const [brand, setBrand] = useState("");
   const [category, setCategory] = useState("");
   const [countInStock, setCountInStock] = useState(0);
-  const [description, setDescription] = useState(""); 
- 
+  const [description, setDescription] = useState("");
+  const [uploading, setUploading] = useState(false);
+
   const navigateTo = useNavigate();
   const dispatch = useDispatch();
   const productDetails = useSelector((state) => state.productDetails);
   const { error, loading, product } = productDetails;
   const productUpdate = useSelector((state) => state.productUpdate);
-  const{success:updateSuccess,error:updateError,loading:updateLoading}=productUpdate;
+  const {
+    success: updateSuccess,
+    error: updateError,
+    loading: updateLoading,
+  } = productUpdate;
   const submitHandler = (e) => {
     e.preventDefault();
-    
-   
-      dispatch(
-        updateProduct(
-        {id,name,price,image,brand,category,countInStock,description}
-      )
-      );
-     
-    
 
-    
+    dispatch(
+      updateProduct({
+        id,
+        name,
+        price,
+        image,
+        brand,
+        category,
+        countInStock,
+        description,
+      })
+    );
   };
   useEffect(() => {
+    if (updateSuccess) {
+      dispatch({ type: PRODUCT_UPDATE_RESET });
+      navigateTo("/admin/productlist");
+    } else {
+      if (!product.name || product._id !== Number(id)) {
+        dispatch(listProductDetails(id));
+      } else {
+        setName(product.name);
+        setPrice(product.price);
+        setImage(product.image);
+        setBrand(product.brand);
+        setCategory(product.category);
+        setCountInStock(product.countInStock);
+        setDescription(product.description);
+      }
+    }
+  }, [dispatch, product, id, navigateTo, updateSuccess]);
 
-      if(updateSuccess){
-        dispatch({type:PRODUCT_UPDATE_RESET})
-        navigateTo('/admin/productlist')
-      }
-      else{
-        if (!product.name || product._id !== Number(id)  ) {
-          dispatch(listProductDetails(id));
-        } else {
-          setName(product.name);
-          setPrice(product.price);
-          setImage(product.image);
-          setBrand(product.brand);
-          setCategory(product.category);
-          setCountInStock(product.countInStock);
-          setDescription(product.description); 
-        }
-      }
-  
-  }, [dispatch, product, id, navigateTo,updateSuccess]);
+  const uploadFileHandler = async (e) => {
+    const file = e.target.files[0];
+    const formData = new FormData();
+
+    formData.append("image", file);
+    formData.append("product_id", id);
+    setUploading(true);
+
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      };
+      const { data } = await axios.post(
+        "http://127.0.0.1:8000/api/products/upload/",
+        formData,
+        config
+      );
+      setImage(data);
+      setUploading(false);
+    } catch (error) {
+      setUploading(false);
+    }
+  };
 
   return (
     <>
@@ -70,11 +101,10 @@ function ProductEditScreen() {
         </Link>
       </div>
 
-
       <FormContainer>
         <h1 className="py-4">Edit Product</h1>
-        {updateLoading && <Loader/>}
-        {updateError && <Message variant='danger'>{updateError}</Message>}
+        {updateLoading && <Loader />}
+        {updateError && <Message variant="danger">{updateError}</Message>}
         {loading ? (
           <Loader />
         ) : error ? (
@@ -107,8 +137,6 @@ function ProductEditScreen() {
                 id="exampleInputEmail1"
                 aria-describedby="emailHelp"
               />
-
-           
             </div>
             <div class="mb-3">
               <label for="exampleInputEmail1" class="form-label">
@@ -123,8 +151,8 @@ function ProductEditScreen() {
                 id="exampleInputEmail1"
                 aria-describedby="emailHelp"
               />
-
-           
+              <input type="file" onChange={uploadFileHandler} />
+              {uploading && <Loader />}
             </div>
             <div class="mb-3">
               <label for="exampleInputEmail1" class="form-label">
@@ -139,8 +167,6 @@ function ProductEditScreen() {
                 id="exampleInputEmail1"
                 aria-describedby="emailHelp"
               />
-
-           
             </div>
             <div class="mb-3">
               <label for="exampleInputEmail1" class="form-label">
@@ -155,8 +181,6 @@ function ProductEditScreen() {
                 id="exampleInputEmail1"
                 aria-describedby="emailHelp"
               />
-
-           
             </div>
             <div class="mb-3">
               <label for="exampleInputEmail1" class="form-label">
@@ -171,12 +195,10 @@ function ProductEditScreen() {
                 id="exampleInputEmail1"
                 aria-describedby="emailHelp"
               />
-
-           
             </div>
             <div class="mb-3">
               <label for="exampleInputEmail1" class="form-label">
-                Description 
+                Description
               </label>
               <textarea
                 onChange={(e) => setDescription(e.target.value)}
@@ -186,12 +208,9 @@ function ProductEditScreen() {
                 className="form-control"
                 id="exampleInputEmail1"
                 aria-describedby="emailHelp"
-                style={{height:150}}
+                style={{ height: 150 }}
               />
-
-           
             </div>
-         
 
             <button type="submit" class="btn btn-primary">
               Update

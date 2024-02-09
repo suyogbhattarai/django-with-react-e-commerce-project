@@ -7,12 +7,12 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import './bootstrap.min.css'
 import {Provider} from 'react-redux'
 import store from './store.jsx';
-import { BrowserRouter } from 'react-router-dom';
+import { HashRouter } from 'react-router-dom';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <Provider store={store}>
-    <BrowserRouter>
+    <HashRouter>
     <App />
-    </BrowserRouter>
+    </HashRouter>
   </Provider>,
 )
